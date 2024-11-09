@@ -594,8 +594,8 @@ def create_data():
     # insert_roles( 'Firefighter'             ,"fire", dict_messages_general['role_Firefighter_n'], 0) 
     # insert_roles( 'IceQueen'                ,"fire", dict_messages_general['role_IceQueen_n'], 0) 
 
-#create_data()
+create_data()
 
-CreateDatabase()
-CreateTable()
+#CreateDatabase()
+#CreateTable()
 
