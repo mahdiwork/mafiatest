@@ -18,7 +18,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-database.create_data()
+#database.create_data()
 
 userStep = {}
 dict_messages_main = {}
