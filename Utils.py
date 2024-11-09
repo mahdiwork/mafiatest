@@ -2858,6 +2858,8 @@ class Game: # کلاس گیم (برای ساخت و اجرای هر بازی)
             if gorg.alive == True:
                 print('wooolf', gorg.role)
                 list_gorg_alive.append(gorg)
+        if list_gorg_alive == []:
+            list_gorg_alive = list_gorg
         if target.alive == True:
             if len(list_gorg_alive) > 0:
                 random_wolf = random.choice(list_gorg_alive)
