@@ -39,8 +39,8 @@ def CreateDatabase():
     config = {'user': 'root', 'password': 'ka25wWJnMY4ilhXrDoLl', 'host': 'data-jjg-service'}
     conn = mysql.connector.connect(**config)
     mycursor = conn.cursor()
-    mycursor.execute("DROP DATABASE IF EXISTS detabase_mafia")
-    mycursor.execute("CREATE DATABASE IF NOT EXISTS detabase_mafia")
+    mycursor.execute("DROP DATABASE IF EXISTS datacvq_db")
+    mycursor.execute("CREATE DATABASE IF NOT EXISTS datacvq_db")
     conn.commit()
     conn.close()
     print("Database Created")
