@@ -36,7 +36,7 @@ def ErrorReport(message, FunctionName, Type='General'):
 def CreateDatabase():
     import mysql.connector
     # config = {'user': 'root', 'password': 'ma8h2dii', 'host': 'localhost'}
-    config = {'user': 'root', 'password': 'ka25wWJnMY4ilhXrDoLl', 'host': 'localhost'}
+    config = {'user': 'root', 'password': 'ka25wWJnMY4ilhXrDoLl', 'host': 'data-jjg-service'}
     conn = mysql.connector.connect(**config)
     mycursor = conn.cursor()
     mycursor.execute("DROP DATABASE IF EXISTS detabase_mafia")
