@@ -531,8 +531,8 @@ def delete_blocked_users_from_group(group_id, cid):
 
 # if __name__ == "__main__":
 def create_data():
-    CreateDatabase()
-    CreateTable()
+    #CreateDatabase()
+    #CreateTable()
 
     insert_roles( 'rosta',           'village', dict_messages_general['role_rosta_n'], 1)
     insert_roles( 'shekar',          'village', dict_messages_general['role_shekar_n'], 0)
@@ -594,6 +594,8 @@ def create_data():
     # insert_roles( 'Firefighter'             ,"fire", dict_messages_general['role_Firefighter_n'], 0) 
     # insert_roles( 'IceQueen'                ,"fire", dict_messages_general['role_IceQueen_n'], 0) 
 
-create_data()
+#create_data()
 
+CreateDatabase()
+CreateTable()
 
