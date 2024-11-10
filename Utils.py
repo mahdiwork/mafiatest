@@ -2030,15 +2030,17 @@ class Game: # کلاس گیم (برای ساخت و اجرای هر بازی)
         if number_wolf == 0:
             for player in self.players:
                 if player.role == 'Khaen':
-                    player.change_role_WolfGorgine()
-                    Message(self.create_message('TraitorTurnWolf'), player).send_message()
+                    if player.alive:
+                        player.change_role_WolfGorgine()
+                        Message(self.create_message('TraitorTurnWolf'), player).send_message()
 
         if number_wolf == 1:
             if list_wolf[0][1].role == 'WhiteWolf':
                 for player in self.players:
                     if player.role == 'Khaen':
-                        player.change_role_WolfGorgine()
-                        Message(self.create_message('TraitorTurnWolf'), player).send_message()
+                        if player.alive:
+                            player.change_role_WolfGorgine()
+                            Message(self.create_message('TraitorTurnWolf'), player).send_message()
                 else:
                     list_wolf[0][1].change_role_WolfGorgine_WhiteWolf()
                     Message(self.create_message('WhiteWolfDeadAllWolf'), list_wolf[0][1]).send_message()
