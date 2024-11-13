@@ -35,12 +35,12 @@ def ErrorReport(message, FunctionName, Type='General'):
 
 def CreateDatabase():
     import mysql.connector
-    # config = {'user': 'root', 'password': 'ma8h2dii', 'host': 'localhost'}
-    config = {'user': 'root', 'password': 'ka25wWJnMY4ilhXrDoLl', 'host': 'data-jjg-service'}
-    conn = mysql.connector.connect(**config)
+    config_ = {'user': config['user'], 'password': config['password'], 'host': config['host']}
+    # config = {'user': 'root', 'password': 'ka25wWJnMY4ilhXrDoLl', 'host': 'data-jjg-service'}
+    conn = mysql.connector.connect(**config_)
     mycursor = conn.cursor()
-    mycursor.execute("DROP DATABASE IF EXISTS datacvq_db")
-    mycursor.execute("CREATE DATABASE IF NOT EXISTS datacvq_db")
+    mycursor.execute(f"DROP DATABASE IF EXISTS {config['database']}")
+    mycursor.execute(f"CREATE DATABASE IF NOT EXISTS {config['database']}")
     conn.commit()
     conn.close()
     print("Database Created")
@@ -286,10 +286,10 @@ def insert_closed_roles_for_groups(group_id, code_role):
         except mysql.connector.errors.IntegrityError:
             ErrorReport('insert TABLE','insert_closed_roles_for_groups',Type='SQL Queries')
 
-def insert_users(cid, username, name):
+def insert_users(cid, username):
     with SQL('insert_users') as c:
         try:
-            c.execute(f'INSERT IGNORE INTO users (cid, username, name) VALUES (%s, %s, %s)', (cid, username, name))
+            c.execute(f'INSERT IGNORE INTO users (cid, username) VALUES (%s, %s)', (cid, username))
         except mysql.connector.errors.IntegrityError:
             ErrorReport('insert TABLE','users',Type='SQL Queries')
 
@@ -337,6 +337,14 @@ def update_GroupsTable(key, value, group_id):
             c.execute(f"update GroupsTable set {key}='{value}' where group_id=%s", (group_id,))
         except mysql.connector.errors.IntegrityError:
             ErrorReport('update TABLE','GroupsTable',Type='SQL Queries')
+
+
+def update_insert_name(name, cid):
+    with SQL('update_users') as c:
+        try:
+            c.execute(f"update users set name=%s where cid=%s", (name, cid))
+        except mysql.connector.errors.IntegrityError:
+            ErrorReport('update TABLE','users',Type='SQL Queries')
 # def update_roles_of_groups(key, value, group_id, code_role):
 #     with SQL('update_roles_of_groups') as c:
 #         try:
@@ -446,14 +454,14 @@ def select_users_by_username(username):
         except mysql.connector.errors.IntegrityError:
             ErrorReport('select TABLE','select_users_by_username',Type='SQL Queries')
 
-def select_users_by_cid(cid):
-    with SQL('select_users_by_cid') as c:
-        try:
-            c.execute('SELECT * FROM users WHERE cid = %s',(cid,))
-            res = c.fetchall()
-            return res
-        except mysql.connector.errors.IntegrityError:
-            ErrorReport('select TABLE','select_users_by_cid',Type='SQL Queries')
+# def select_users_by_cid(cid):
+#     with SQL('select_users_by_cid') as c:
+#         try:
+#             c.execute('SELECT * FROM users WHERE cid = %s',(cid,))
+#             res = c.fetchall()
+#             return res
+#         except mysql.connector.errors.IntegrityError:
+#             ErrorReport('select TABLE','select_users_by_cid',Type='SQL Queries')
 
 
 def select_blocked_users_by_cid(cid):
@@ -531,8 +539,8 @@ def delete_blocked_users_from_group(group_id, cid):
 
 # if __name__ == "__main__":
 def create_data():
-    #CreateDatabase()
-    #CreateTable()
+    CreateDatabase()
+    CreateTable()
 
     insert_roles( 'rosta',           'village', dict_messages_general['role_rosta_n'], 1)
     insert_roles( 'shekar',          'village', dict_messages_general['role_shekar_n'], 0)
@@ -594,8 +602,6 @@ def create_data():
     # insert_roles( 'Firefighter'             ,"fire", dict_messages_general['role_Firefighter_n'], 0) 
     # insert_roles( 'IceQueen'                ,"fire", dict_messages_general['role_IceQueen_n'], 0) 
 
-#create_data()
+# create_data()
 
-#CreateDatabase()
-#CreateTable()
 
