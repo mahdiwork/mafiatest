@@ -1,5 +1,5 @@
 import os
-LogFile = 'mafia.log'
+LogFile = os.path.join('upload', 'mafia.log')
 Local = True
 #config={'user': os.environ['database_user'], 'password': os.environ['database_password'], 'host': 'localhost','database':'detabase_property'}
 # config={'user': 'root', 'password': 'ma8h2dii', 'host': 'localhost','database':'detabase_mafia'}
