@@ -349,23 +349,23 @@ def check_group_in_dict(group_id, m):
 
 
 #-------------------------------------------------------------------listener--------------------------------------------------------------
-def listener(messages):
-    """
-    When new messages arrive TeleBot will call this function.
-    """
-    for m in messages:
-        # print(m)
-        if m.content_type == 'text':
-            print(str(m.chat.first_name) +
-                  " [" + str(m.chat.id) + "]: " + m.text)
-        elif m.content_type == 'photo':
-            print(str(m.chat.first_name) +
-                  " [" + str(m.chat.id) + "]: " + "New photo recieved")
-        elif m.content_type == 'document':
-            print(str(m.chat.first_name) +
-                  " [" + str(m.chat.id) + "]: " + 'New Document recieved')
+# def listener(messages):
+#     """
+#     When new messages arrive TeleBot will call this function.
+#     """
+#     for m in messages:
+#         # print(m)
+#         if m.content_type == 'text':
+#             print(str(m.chat.first_name) +
+#                   " [" + str(m.chat.id) + "]: " + m.text)
+#         elif m.content_type == 'photo':
+#             print(str(m.chat.first_name) +
+#                   " [" + str(m.chat.id) + "]: " + "New photo recieved")
+#         elif m.content_type == 'document':
+#             print(str(m.chat.first_name) +
+#                   " [" + str(m.chat.id) + "]: " + 'New Document recieved')
 
-bot.set_update_listener(listener)
+# bot.set_update_listener(listener)
 
 
 #-------------------------------------------------------------------content_types--------------------------------------------------------------
