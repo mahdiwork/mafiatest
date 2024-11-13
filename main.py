@@ -11,6 +11,7 @@ import random
 from pprint import pprint
 from Utils import Game, Group, bot, send_message, edit_message_text, Message, Player, edit_message_reply_markup, Settings
 import os 
+import re
 
 logging.basicConfig(
     filename='error.log',
@@ -55,6 +56,11 @@ def read_ini_file(file_path, dict_text):
 
 def create_tag(user):
     return f'[{user.name}](tg://user?id={user.id})'
+
+def is_valid_name(name):
+    pattern = r'^[A-Za-zآ-ی]+$'
+    return bool(re.match(pattern, name))
+
 
 def is_block(cid):
     check_blocked = database.select_blocked_users_by_cid(cid)
@@ -218,7 +224,7 @@ def InlineKeyboardMarkup_main():
     markup = ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(KeyboardButton(dict_messages_main['webapp'], web_app=WebAppInfo(url='https://almaslink.ir/comming_soon/'))) 
     markup.add(KeyboardButton(dict_messages_main['dis_roles'], web_app=WebAppInfo(url='https://irweb.site/mafia_roles'))) 
-    # markup.add('حساب کاربری 👤')
+    markup.add('حساب کاربری 👤')
     # markup.add('فرشگاه 🛒', 'خرید سکه 💰')
     return markup
 
@@ -343,23 +349,23 @@ def check_group_in_dict(group_id, m):
 
 
 #-------------------------------------------------------------------listener--------------------------------------------------------------
-# def listener(messages):
-#     """
-#     When new messages arrive TeleBot will call this function.
-#     """
-#     for m in messages:
-#         # print(m)
-#         if m.content_type == 'text':
-#             print(str(m.chat.first_name) +
-#                   " [" + str(m.chat.id) + "]: " + m.text)
-#         elif m.content_type == 'photo':
-#             print(str(m.chat.first_name) +
-#                   " [" + str(m.chat.id) + "]: " + "New photo recieved")
-#         elif m.content_type == 'document':
-#             print(str(m.chat.first_name) +
-#                   " [" + str(m.chat.id) + "]: " + 'New Document recieved')
+def listener(messages):
+    """
+    When new messages arrive TeleBot will call this function.
+    """
+    for m in messages:
+        # print(m)
+        if m.content_type == 'text':
+            print(str(m.chat.first_name) +
+                  " [" + str(m.chat.id) + "]: " + m.text)
+        elif m.content_type == 'photo':
+            print(str(m.chat.first_name) +
+                  " [" + str(m.chat.id) + "]: " + "New photo recieved")
+        elif m.content_type == 'document':
+            print(str(m.chat.first_name) +
+                  " [" + str(m.chat.id) + "]: " + 'New Document recieved')
 
-# bot.set_update_listener(listener)
+bot.set_update_listener(listener)
 
 
 #-------------------------------------------------------------------content_types--------------------------------------------------------------
@@ -396,7 +402,7 @@ def command_start(m):
         if is_block(cid): 
             Message(dict_messages_main['msg_blocked_user'], Player(cid, name), replykebord_communication_admin()).send_message()
             return
-        database.insert_users(cid, username, name)
+        database.insert_users(cid, username)
 
         
         if m.text.endswith('start') == False:
@@ -407,13 +413,20 @@ def command_start(m):
                     bot.send_message(cid, dict_messages_main['msg_user_blocked'])
                 
                 else:
-                    name = m.chat.first_name
-                    player = game_dict[group_dict[group_id]].add_playar(cid, name)
-                    if player:
-                        players_dict[cid] = player
-                        print(players_dict)
+                    check_name = database.select_users_by_cid(cid)
+                    if check_name:
+                        if check_name[0]['name']:
+                            player = game_dict[group_dict[group_id]].add_playar(cid, check_name[0]['name'])
+                            if player:
+                                players_dict[cid] = player
+                                print(players_dict)
+                            else:
+                                bot.send_message(cid, dict_messages_main['end_time_membership'])
+                        else:
+                            userStep[cid] = 5
+                            Message(dict_messages_main['insertname'],Player(cid, name)).send_message()
                     else:
-                        bot.send_message(cid, dict_messages_main['end_time_membership'])
+                        database.insert_users(cid, username)
             else:
                 player = players_dict[cid]
                 g_id = player.game.group.id
@@ -687,7 +700,7 @@ def command_config(m):
                     markup = InlineKeyboardMarkup()
                     for player in list_players_alive:
                         markup.add(InlineKeyboardButton(str(player.name), callback_data=f"smite_{player.id}"))
-                    markup.add(InlineKeyboardButton(dict_messages_main['cancele_ok'], callback_data="smite_cancel"))
+                    markup.add(InlineKeyboardButton("لغو", callback_data="smite_cancel"))
 
                     Message(dict_messages_main['messagesmite'], group_dict[group_id], markup).send_message()
                 else:
@@ -1518,6 +1531,20 @@ def edit_all_role(call):
     instans_game = game_dict[group_dict[group_id]]
     dict_all_role = {}
 
+@bot.callback_query_handler(func=lambda call: call.data.startswith("user"))
+def edit_all_role(call):
+    cid = call.message.chat.id
+    #name = call.message.chat.first_name
+    mid=call.message.message_id
+    data=call.data.split("_")
+    if data[1] == 'editname':
+        userStep[cid] = 6
+        bot.delete_message(cid, mid)
+        markup = ReplyKeyboardMarkup(resize_keyboard=True)
+        markup.add("لغو")
+        bot.send_message(cid, dict_messages_main['editname'], reply_markup=markup)
+
+        
 #---------------------------------------------------------------text--------------------------------------------------
 @bot.message_handler(func=lambda m: m.text == dict_messages_main['support_btn'])
 def support(m):
@@ -1534,6 +1561,35 @@ def support(m):
     name = m.chat.first_name
 
 
+
+@bot.message_handler(func=lambda m: m.text == "لغو")
+def support(m):
+    cid = m.chat.id
+    name = m.chat.first_name
+    if userStep[cid] == 6 or userStep[cid] == 5:
+        userStep[cid] = 0
+        Message(dict_messages_main['Default_message'],Player(cid,name), InlineKeyboardMarkup_main()).send_message()
+
+
+@bot.message_handler(func=lambda m: m.text == 'حساب کاربری 👤')
+def account(m):
+    cid = m.chat.id
+    check_name = database.select_users_by_cid(cid)
+    if check_name:
+        if check_name[0]['name']:
+            name = check_name[0]['name']
+            markup = InlineKeyboardMarkup()
+            markup.add(InlineKeyboardButton('ویرایش نام', callback_data="user_editname"))
+            Message(dict_messages_main['okaccont'].format(name), Player(cid, name), markup).send_message()
+
+        else:
+            userStep[cid] = 5
+            markup = ReplyKeyboardMarkup(resize_keyboard=True)
+            markup.add("لغو")
+            bot.send_message(cid, dict_messages_main['logininsertname'],reply_markup=markup)
+    else:
+        username = "@" + str(m.chat.username)
+        database.insert_users(cid, username)
 
 #----------------------------------------------------------------user step--------------------------------------------------------
 @bot.message_handler(func=lambda m: get_user_step(m.chat.id) == 1)
@@ -1698,6 +1754,45 @@ def get_msg(m):
             Message(dict_messages_main['notcorect_format'], Player(cid, 'admin'), markup).send_message()
 
 
+@bot.message_handler(func=lambda m: get_user_step(m.chat.id) == 5)
+def get_name(m):
+    cid = m.chat.id
+    name = m.chat.first_name
+    text = m.text
+    if is_valid_name(text.replace(' ','')):
+        if 3 <= len(text) <= 15:
+            userStep[cid] = 0
+            database.update_insert_name(text, cid)
+            bot.send_message(cid, dict_messages_main['okinsertname'], reply_markup=InlineKeyboardMarkup_main())
+        else:
+            markup = ReplyKeyboardMarkup(resize_keyboard=True)
+            markup.add("لغو")
+            bot.send_message(cid, dict_messages_main['invalidnamelen'], reply_markup=markup)
+
+    else:
+        markup = ReplyKeyboardMarkup(resize_keyboard=True)
+        markup.add("لغو")
+        bot.send_message(cid, dict_messages_main['invalidname'], reply_markup=markup)
+
+
+@bot.message_handler(func=lambda m: get_user_step(m.chat.id) == 6)
+def edit_name(m):
+    cid = m.chat.id
+    name = m.chat.first_name
+    text = m.text
+    if is_valid_name(text.replace(' ','')):
+        if 3 <= len(text) <= 15:
+            userStep[cid] = 0
+            database.update_insert_name(text, cid)
+            bot.send_message(cid, dict_messages_main['okeditname'], reply_markup=InlineKeyboardMarkup_main())
+        else:
+            markup = ReplyKeyboardMarkup(resize_keyboard=True)
+            markup.add("لغو")
+            bot.send_message(cid, dict_messages_main['invalidnamelen'], reply_markup=markup)
+    else:
+        markup = ReplyKeyboardMarkup(resize_keyboard=True)
+        markup.add("لغو")
+        bot.send_message(cid, dict_messages_main['invalidname'], reply_markup=markup)
 #----------------------------------------------------------------all message in private--------------------------------------------------------
 @bot.message_handler(func=lambda message: message.chat.type == 'private')
 def all_message(m):
@@ -1710,7 +1805,7 @@ def all_message(m):
         if list_team:
             bot.delete_message(cid,m.message_id)
             for player in list_team:
-                Message(f'{name} : {text}', player).send_message()
+                Message(f'{players_dict[cid].name} : {text}', player).send_message()
         
 
 @bot.message_handler(func=lambda message: message.chat.type in ['group' , 'supergroup'])
