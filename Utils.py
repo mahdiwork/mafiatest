@@ -9,7 +9,7 @@ import time
 import database
 import os
 
-TOKEN =  '7608893026:AAEarXN8Cc8Y27gJNoEAwCQqjjIlwPuZa0o' #'7018847010:AAEMTrqs7mZRwxyaXE_XUgbyYPYzl_Twt3M'
+TOKEN = '7608893026:AAEarXN8Cc8Y27gJNoEAwCQqjjIlwPuZa0o' #'7018847010:AAEMTrqs7mZRwxyaXE_XUgbyYPYzl_Twt3M' # 
 bot = telebot.TeleBot(TOKEN, num_threads=1)
 
 master_cid = 748626808
@@ -2740,6 +2740,7 @@ class Game: # کلاس گیم (برای ساخت و اجرای هر بازی)
         elif target.role == 'Qatel': # قاتل رو سیو بده
             fereshte.you_were_killed(target)
             fereshte.messages = Message(self.create_message('GuardKiller'),fereshte)
+            self.group.messages = Message(self.create_message('GAGuardedKiller',[fereshte]),self.group)
 
         elif fereshte.target.role == 'Bloodthirsty':
             if random.random() < 0.5:
